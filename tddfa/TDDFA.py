@@ -9,6 +9,7 @@ import cv2
 import torch
 from torchvision.transforms import Compose
 import torch.backends.cudnn as cudnn
+import yaml
 
 from . import models
 from .bfm import BFMModel
@@ -23,16 +24,20 @@ from utils.tddfa_util import (
 
 make_abs_path = lambda fn: osp.join(osp.dirname(osp.realpath(__file__)), fn)
 
+default_cfg = yaml.load(open(make_abs_path("configs/mb1_120x120.yml")), Loader=yaml.SafeLoader)
 
 class TDDFA(object):
     """TDDFA: named Three-D Dense Face Alignment (TDDFA)"""
 
-    def __init__(self, **kvs):
+    def __init__(self, *, is_default=False, **kvs):
         torch.set_grad_enabled(False)
+
+        if is_default:
+            kvs = default_cfg
 
         # load BFM
         self.bfm = BFMModel(
-            bfm_fp=kvs.get('bfm_fp', make_abs_path('configs/bfm_noneck_v3.pkl')),
+            bfm_fp=make_abs_path(kvs.get('bfm_fp', 'configs/bfm_noneck_v3.pkl')),
             shape_dim=kvs.get('shape_dim', 40),
             exp_dim=kvs.get('exp_dim', 10)
         )
@@ -43,8 +48,8 @@ class TDDFA(object):
         self.gpu_id = kvs.get('gpu_id', 0)
         self.size = kvs.get('size', 120)
 
-        param_mean_std_fp = kvs.get(
-            'param_mean_std_fp', make_abs_path(f'configs/param_mean_std_62d_{self.size}x{self.size}.pkl')
+        param_mean_std_fp = make_abs_path(kvs.get(
+            'param_mean_std_fp', f'configs/param_mean_std_62d_{self.size}x{self.size}.pkl')
         )
 
         # load model, default output is dimension with length 62 = 12(pose) + 40(shape) +10(expression)
@@ -54,7 +59,7 @@ class TDDFA(object):
             size=self.size,
             mode=kvs.get('mode', 'small')
         )
-        model = load_model(model, kvs.get('checkpoint_fp'))
+        model = load_model(model, make_abs_path(kvs.get('checkpoint_fp')))
 
         if self.gpu_mode:
             cudnn.benchmark = True
