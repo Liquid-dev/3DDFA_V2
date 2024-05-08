@@ -4,8 +4,6 @@ __author__ = 'cleardusk'
 
 import sys
 
-sys.path.append('..')
-
 import cv2
 import numpy as np
 import os.path as osp
