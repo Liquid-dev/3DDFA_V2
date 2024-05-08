@@ -7,9 +7,11 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.7"
-pytorch = "^1.13"
-opencv-python = "^4"
-numpy = "^1"
+
+# この辺が必要だけど、depedenciesに入れない
+# pytorch = "^1.13"
+# opencv-python = "^4"
+# numpy = "^1"
 
 
 [build-system]
