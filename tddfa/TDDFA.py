@@ -24,12 +24,37 @@ from utils.tddfa_util import (
 
 make_abs_path = lambda fn: osp.join(osp.dirname(osp.realpath(__file__)), fn)
 
+"""
+    TDDFA_V2をpip installして利用できるようにしている
+    https://github.com/cleardusk/3DDFA_V2
+
+    変更方針
+    * 以下前提でコードの変更をしている
+        * モデルの追加変更はないこと
+        * 使用するモデルをmobilenetから変えないこと
+    * demo関係と内包されていたfaceboxesはdemo dirに移動
+    * utilsとbfmはそのまま移動
+        * 両方とも最小限のパス通ししかしていないので、そのままでは動かないものが存在する点注意
+
+    is_defaultを追加しているのは、使用したいときに、configファイルへのパスを意識しなくてもいいようにするため
+    もしモデルの変更追加を行うならば、**kvsで設定値を受け取るよりも、configsに設定ファイルが置くようにして、
+    `config_path="configs/mb1_120x120.yml"` だけを引数で渡して、__init__内でyml load->設定値として使う形式にした方が良い。
+    ->ただし変更範囲は少し広くなるし、kvs.get()のデフォルト値の見直しも必要
+"""
+
+
 default_cfg = yaml.load(open(make_abs_path("configs/mb1_120x120.yml")), Loader=yaml.SafeLoader)
 
 class TDDFA(object):
     """TDDFA: named Three-D Dense Face Alignment (TDDFA)"""
 
     def __init__(self, *, is_default=False, **kvs):
+        """
+        Args:
+            is_default (bool, optional): 使用するモデルをデフォルトのmobilenetv1ベースのものにするかどうか. Defaults to False.
+            **kvs: 辞書型で設定値を渡す. configファイルをyml loadしたものが入る想定
+        """
+
         torch.set_grad_enabled(False)
 
         if is_default:
@@ -37,6 +62,10 @@ class TDDFA(object):
 
         # load BFM
         self.bfm = BFMModel(
+            # make_abs_pathの掛け方を変更している場所がある
+            # tddfa/configs, tddfa/weightsの中にモデルなどをおくことを前提とするため
+            # kvs.get('bfm_fp') などで相対パスを取得してしまった場合、上記のディレクトリまで到達できなくはないけど大変なため、その対策
+            # もしtddfaの外に設定値、モデルを置く場合は、元のコードに戻して、configファイルで指定する形にすると良い
             bfm_fp=make_abs_path(kvs.get('bfm_fp', 'configs/bfm_noneck_v3.pkl')),
             shape_dim=kvs.get('shape_dim', 40),
             exp_dim=kvs.get('exp_dim', 10)
