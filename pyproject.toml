@@ -6,13 +6,15 @@ authors = ["Your Name <you@example.com>"]
 readme = "readme.md"
 
 [tool.poetry.dependencies]
-python = "^3.7"
+python = "^3.10"
+opencv-python = "^4.2"
+torch = "^2.0"
+torchvision = "*"
+pyaml = "*"
+matplotlib = "^3.8.4"
 
-# この辺が必要だけど、depedenciesに入れない
-# pytorch = "^1.13"
-# opencv-python = "^4"
-# numpy = "^1"
-
+[tool.poetry.group.dev.dependencies]
+pytest = "^7.4.0"
 
 [build-system]
 requires = ["poetry-core"]
