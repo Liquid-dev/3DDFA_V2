@@ -9,6 +9,7 @@ readme = "readme.md"
 python = "^3.10, <4"
 opencv-python = "^4.2"
 torch = "^2.0, <3"
+torchvision = "*"
 
 [tool.poetry.group.dev.dependencies]
 pytest = "^7.4.0"
