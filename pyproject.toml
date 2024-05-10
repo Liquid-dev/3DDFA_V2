@@ -6,9 +6,9 @@ authors = ["Your Name <you@example.com>"]
 readme = "readme.md"
 
 [tool.poetry.dependencies]
-python = "^3.10, <4"
+python = "^3.10"
 opencv-python = "^4.2"
-torch = "^2.0, <3"
+torch = "^2.0"
 torchvision = "*"
 pyaml = "*"
 matplotlib = "^3.8.4"
